@@ -25,14 +25,20 @@ export interface SymbolsPaneProps {}
 export function SymbolsPane(props: SymbolsPaneProps) {
   // event listeners
   const dragStartHandler = useCallback((event) => {
-    const intent = "add"
-    const symbolType = event.target.dataset.symbolType
     const { left, top } = event.target.getBoundingClientRect()
     const { clientX, clientY } = event
-    const offsetX = clientX - left
-    const offsetY = clientY - top
-    const data = JSON.stringify({ intent, symbolType, offsetX, offsetY })
-    event.dataTransfer.setData("text/plain", data)
+
+    event.dataTransfer.setData(
+      "text/plain",
+      JSON.stringify({
+        intent: "add",
+        symbolType: event.target.dataset.symbolType,
+        offsetX: clientX - left,
+        offsetY: clientY - top,
+        width: event.target.offsetWidth,
+        height: event.target.offsetHeight,
+      })
+    )
   }, [])
 
   return (

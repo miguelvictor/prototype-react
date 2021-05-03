@@ -10,6 +10,8 @@ import {
 } from "app-store"
 import "./workspace-pane.scss"
 
+const workspacePadding = 10
+
 export function WorkspacePane() {
   // retrieve symbols from store
   const symbols = useAppSelector<FlowchartSymbolPiece[]>(selectSymbols)
@@ -17,14 +19,20 @@ export function WorkspacePane() {
 
   // drag event handlers
   const dragStartHandler = useCallback((event) => {
-    const intent = "move"
-    const id = event.target.dataset.pieceId
     const { left, top } = event.target.getBoundingClientRect()
     const { clientX, clientY } = event
-    const offsetX = clientX - left
-    const offsetY = clientY - top
-    const data = JSON.stringify({ intent, id, offsetX, offsetY })
-    event.dataTransfer.setData("text/plain", data)
+
+    event.dataTransfer.setData(
+      "text/plain",
+      JSON.stringify({
+        intent: "move",
+        id: event.target.dataset.pieceId,
+        offsetX: clientX - left,
+        offsetY: clientY - top,
+        width: event.target.offsetWidth,
+        height: event.target.offsetHeight,
+      })
+    )
   }, [])
   const dragOverHandler = useCallback((event) => event.preventDefault(), [])
   const dropHandler = useCallback(
@@ -35,17 +43,18 @@ export function WorkspacePane() {
       }
 
       const data = JSON.parse(rawData)
+      const { id, symbolType, offsetX, offsetY, width, height } = data
+      const { left, top } = event.target.getBoundingClientRect()
+      const { offsetWidth, offsetHeight } = event.target
+      const { clientX, clientY } = event
+      let x = Math.max(clientX - offsetX, left + workspacePadding)
+      let y = Math.max(clientY - offsetY, top + workspacePadding)
+      x = Math.min(x, left + offsetWidth - width - workspacePadding)
+      y = Math.min(y, top + offsetHeight - height - workspacePadding)
+
       if (data.intent === "add") {
-        const { symbolType: type, offsetX, offsetY } = data
-        const { clientX, clientY } = event
-        const x = clientX - offsetX
-        const y = clientY - offsetY
-        dispatch(actions.add({ x, y, type }))
+        dispatch(actions.add({ x, y, type: symbolType }))
       } else if (data.intent === "move") {
-        const { id, offsetX, offsetY } = data
-        const { clientX, clientY } = event
-        const x = clientX - offsetX
-        const y = clientY - offsetY
         dispatch(actions.move({ x, y, id }))
       }
     },
