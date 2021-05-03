@@ -1,6 +1,6 @@
 import React, { useCallback } from "react"
 
-import { symbolStyles } from "app-components/symbols-pane"
+import { symbolsDef } from "app-components/symbols-pane"
 import { FlowchartSymbolPiece } from "app-models"
 import {
   useAppSelector,
@@ -66,10 +66,10 @@ export function WorkspacePane() {
     <img
       key={id}
       className="symbol on-workspace"
-      src={`/assets/${type}.svg`}
-      alt={type}
+      src={symbolsDef[type!].imgPath}
+      alt={symbolsDef[type!].label}
       style={{
-        ...symbolStyles[type!],
+        ...symbolsDef[type!].styles,
         position: "absolute",
         top: `${y}px`,
         left: `${x}px`,

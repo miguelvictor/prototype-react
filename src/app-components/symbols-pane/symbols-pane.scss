@@ -21,6 +21,14 @@
 }
 
 .symbol {
-  cursor: move;
   user-select: none;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+.symbol:active {
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
 }

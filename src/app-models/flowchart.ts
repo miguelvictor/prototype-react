@@ -1,3 +1,5 @@
+import { CSSProperties } from "react"
+
 export enum FlowchartSymbol {
   Terminator = "terminator",
   Decision = "decision",
@@ -11,4 +13,10 @@ export interface FlowchartSymbolPiece {
   type?: FlowchartSymbol
   x: number
   y: number
+}
+
+export interface SymbolDef {
+  label: string
+  imgPath: string
+  styles: CSSProperties
 }

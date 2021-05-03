@@ -1,23 +1,33 @@
-import React, { CSSProperties, useCallback } from "react"
+import React, { useCallback } from "react"
 
-import { FlowchartSymbol } from "app-models"
+import { FlowchartSymbol, SymbolDef } from "app-models"
 import "./symbols-pane.scss"
 
-export const symbolStyles: { [key in FlowchartSymbol]: CSSProperties } = {
+export const symbolsDef: { [key in FlowchartSymbol]: SymbolDef } = {
   terminator: {
-    width: "100px",
+    label: "Terminator",
+    imgPath: "/assets/terminator.svg",
+    styles: { width: "100px" },
   },
   decision: {
-    width: "70px",
+    label: "Decision",
+    imgPath: "/assets/decision.svg",
+    styles: { width: "70px" },
   },
   process: {
-    width: "100px",
+    label: "Process",
+    imgPath: "/assets/process.svg",
+    styles: { width: "100px" },
   },
   connector: {
-    width: "50px",
+    label: "Connector",
+    imgPath: "/assets/connector.svg",
+    styles: { width: "50px" },
   },
   io: {
-    width: "100px",
+    label: "Input/Output",
+    imgPath: "/assets/io.svg",
+    styles: { width: "100px" },
   },
 }
 export interface SymbolsPaneProps {}
@@ -41,69 +51,28 @@ export function SymbolsPane(props: SymbolsPaneProps) {
     )
   }, [])
 
+  // subcomponents definition
+  const uiSymbols = Object.entries(symbolsDef).map(
+    ([id, { label, imgPath, styles }]) => (
+      <div key={id} className="container">
+        <img
+          className="symbol"
+          src={imgPath}
+          alt={label}
+          data-symbol-type={id}
+          style={styles}
+          draggable={true}
+          onDragStart={dragStartHandler}
+        />
+        <div className="label">{label}</div>
+      </div>
+    )
+  )
+
   return (
     <div className="symbols">
       <div className="title">Flowchart Symbols</div>
-      <div className="container">
-        <img
-          className="symbol"
-          src="/assets/terminator.svg"
-          alt="Terminator"
-          data-symbol-type="terminator"
-          style={symbolStyles["terminator"]}
-          draggable={true}
-          onDragStart={dragStartHandler}
-        />
-        <div className="label">Terminator</div>
-      </div>
-      <div className="container">
-        <img
-          className="symbol"
-          src="/assets/decision.svg"
-          alt="Decision"
-          data-symbol-type="decision"
-          style={symbolStyles["decision"]}
-          draggable={true}
-          onDragStart={dragStartHandler}
-        />
-        <div className="label">Decision</div>
-      </div>
-      <div className="container">
-        <img
-          className="symbol"
-          src="/assets/process.svg"
-          alt="Process"
-          data-symbol-type="process"
-          style={symbolStyles["process"]}
-          draggable={true}
-          onDragStart={dragStartHandler}
-        />
-        <div className="label">Process</div>
-      </div>
-      <div className="container">
-        <img
-          className="symbol"
-          src="/assets/connector.svg"
-          alt="Connector"
-          data-symbol-type="connector"
-          style={symbolStyles["connector"]}
-          draggable={true}
-          onDragStart={dragStartHandler}
-        />
-        <div className="label">Connector</div>
-      </div>
-      <div className="container">
-        <img
-          className="symbol"
-          src="/assets/io.svg"
-          alt="IO"
-          data-symbol-type="io"
-          style={symbolStyles["io"]}
-          draggable={true}
-          onDragStart={dragStartHandler}
-        />
-        <div className="label">Input/Output</div>
-      </div>
+      {uiSymbols}
     </div>
   )
 }
