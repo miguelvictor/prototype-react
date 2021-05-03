@@ -1,4 +1,4 @@
-import React, { useCallback } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 
 import { symbolsDef } from "app-components/symbols-pane"
 import { FlowchartSymbolPiece } from "app-models"
@@ -9,6 +9,13 @@ import {
   actions,
 } from "app-store"
 import "./workspace-pane.scss"
+
+interface SymbolHandlesDefinition {
+  top: [number, number]
+  right: [number, number]
+  bottom: [number, number]
+  left: [number, number]
+}
 
 const workspacePadding = 10
 
@@ -61,23 +68,66 @@ export function WorkspacePane() {
     [dispatch]
   )
 
+  // mouse hover
+  const [handles, setHandles] = useState<SymbolHandlesDefinition>()
+  const mouseOverHandler = useCallback(
+    (event) => {
+      const { left, top } = event.target.getBoundingClientRect()
+      const { offsetWidth: w, offsetHeight: h } = event.target
+
+      setHandles({
+        top: [left + w / 2 - 4, top - 4],
+        right: [left + w - 4, top + h / 2 - 4],
+        bottom: [left + w / 2 - 4, top + h - 4],
+        left: [left - 4, top + h / 2 - 4],
+      })
+    },
+    [setHandles]
+  )
+  const mouseLeaveHandler = useCallback(() => setHandles(undefined), [
+    setHandles,
+  ])
+
   // sub components
-  const uiSymbols = symbols.map(({ id, x, y, type }) => (
-    <img
-      key={id}
-      className="symbol on-workspace"
-      src={symbolsDef[type!].imgPath}
-      alt={symbolsDef[type!].label}
-      style={{
-        ...symbolsDef[type!].styles,
-        position: "absolute",
-        top: `${y}px`,
-        left: `${x}px`,
-      }}
-      data-piece-id={id}
-      onDragStart={dragStartHandler}
-    />
-  ))
+  const uiHandles = useMemo(
+    () =>
+      handles
+        ? Object.values(handles).map(([x, y], i) => (
+            <span
+              key={i}
+              className="handle"
+              style={{
+                position: "absolute",
+                top: `${y}px`,
+                left: `${x}px`,
+              }}
+            ></span>
+          ))
+        : [],
+    [handles]
+  )
+  const uiSymbols = useMemo(
+    () =>
+      symbols.map(({ id, x, y, type }) => (
+        <img
+          key={id}
+          className="symbol on-workspace"
+          src={symbolsDef[type!].imgPath}
+          alt={symbolsDef[type!].label}
+          style={{
+            ...symbolsDef[type!].styles,
+            position: "absolute",
+            top: `${y}px`,
+            left: `${x}px`,
+          }}
+          data-piece-id={id}
+          onMouseOver={mouseOverHandler}
+          onMouseLeave={mouseLeaveHandler}
+          onDragStart={dragStartHandler}
+        />
+      )),
+    [symbols]
+  )
 
   return (
     <div
@@ -85,7 +135,7 @@ export function WorkspacePane() {
       onDragOver={dragOverHandler}
       onDrop={dropHandler}
     >
-      {uiSymbols}
+      {uiSymbols.concat(uiHandles)}
     </div>
   )
 }

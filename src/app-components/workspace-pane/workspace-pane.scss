@@ -1,3 +1,12 @@
 .workspace {
   height: 100%;
 }
+
+.handle {
+  width: 7px;
+  height: 7px;
+  background-color: #a7ffeb;
+  border: 1px solid #00796b;
+  border-radius: 50%;
+  z-index: 999;
+}
