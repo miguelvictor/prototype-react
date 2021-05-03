@@ -1,26 +1,27 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react"
+import { Provider } from "react-redux"
+
+import { SymbolsPane, WorkspacePane } from "app-components"
+import { store } from "app-store"
+import "./App.scss"
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <Provider store={store}>
+      <div className="App">
+        <div className="header">
+          <div className="title">Flowchart Prototype</div>
+        </div>
+        <div className="symbols-pane">
+          <SymbolsPane />
+        </div>
+        <div className="workspace-pane">
+          <WorkspacePane />
+        </div>
+        <div className="preview-pane"></div>
+      </div>
+    </Provider>
+  )
 }
 
-export default App;
+export default App

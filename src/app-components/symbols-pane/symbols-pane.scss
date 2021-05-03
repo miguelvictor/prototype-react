@@ -1,0 +1,26 @@
+.symbols {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .title {
+    display: inline-block;
+    color: rgba(black, 0.54);
+  }
+
+  .container {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .label {
+    font-weight: 900;
+    text-align: center;
+    user-select: none;
+  }
+}
+
+.symbol {
+  cursor: move;
+  user-select: none;
+}
