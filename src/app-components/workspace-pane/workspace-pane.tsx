@@ -1,12 +1,14 @@
-import React, { useCallback, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 
 import { symbolsDef } from "app-components/symbols-pane"
 import { FlowchartSymbolPiece } from "app-models"
 import {
-  useAppSelector,
-  useAppDispatch,
-  selectSymbols,
   actions,
+  CursorState,
+  selectSymbols,
+  selectCursorState,
+  useAppDispatch,
+  useAppSelector,
 } from "app-store"
 import "./workspace-pane.scss"
 
@@ -18,10 +20,12 @@ interface SymbolHandlesDefinition {
 }
 
 const workspacePadding = 10
+const handleWidth = 10
 
 export function WorkspacePane() {
   // retrieve symbols from store
   const symbols = useAppSelector<FlowchartSymbolPiece[]>(selectSymbols)
+  const cursor = useAppSelector<CursorState>(selectCursorState)
   const dispatch = useAppDispatch()
 
   // drag event handlers
@@ -70,23 +74,41 @@ export function WorkspacePane() {
 
   // mouse hover
   const [handles, setHandles] = useState<SymbolHandlesDefinition>()
-  const mouseOverHandler = useCallback(
+  const [isSymbolHovered, setSymbolHovered] = useState(false)
+  const [isHandleHovered, setHandleHovered] = useState(false)
+  const symbolMouseOverHandler = useCallback(
     (event) => {
+      // this mode is only available when cursor is "connect"
+      if (cursor !== "connect") return
+
       const { left, top } = event.target.getBoundingClientRect()
       const { offsetWidth: w, offsetHeight: h } = event.target
 
+      setSymbolHovered(true)
       setHandles({
-        top: [left + w / 2 - 4, top - 4],
-        right: [left + w - 4, top + h / 2 - 4],
-        bottom: [left + w / 2 - 4, top + h - 4],
-        left: [left - 4, top + h / 2 - 4],
+        top: [left + w / 2 - handleWidth / 2, top - handleWidth / 2],
+        right: [left + w - handleWidth / 2, top + h / 2 - handleWidth / 2],
+        bottom: [left + w / 2 - handleWidth / 2, top + h - handleWidth / 2],
+        left: [left - handleWidth / 2, top + h / 2 - handleWidth / 2],
       })
     },
-    [setHandles]
+    [cursor, setSymbolHovered, setHandles]
   )
-  const mouseLeaveHandler = useCallback(() => setHandles(undefined), [
-    setHandles,
+  const symbolMouseLeaveHandler = useCallback(() => setSymbolHovered(false), [
+    setSymbolHovered,
   ])
+  const handleMouseOverHandler = useCallback(() => setHandleHovered(true), [
+    setHandleHovered,
+  ])
+  const handleMouseLeaveHandler = useCallback(() => setHandleHovered(false), [
+    setHandleHovered,
+  ])
+
+  useEffect(() => {
+    if (isSymbolHovered === false && isHandleHovered === false) {
+      setHandles(undefined)
+    }
+  }, [isSymbolHovered, isHandleHovered, setHandles])
 
   // sub components
   const uiHandles = useMemo(
@@ -101,10 +123,12 @@ export function WorkspacePane() {
                 top: `${y}px`,
                 left: `${x}px`,
               }}
+              onMouseOver={handleMouseOverHandler}
+              onMouseLeave={handleMouseLeaveHandler}
             ></span>
           ))
         : [],
-    [handles]
+    [handles, handleMouseOverHandler, handleMouseLeaveHandler]
   )
   const uiSymbols = useMemo(
     () =>
@@ -120,13 +144,20 @@ export function WorkspacePane() {
             top: `${y}px`,
             left: `${x}px`,
           }}
+          draggable={cursor === "default"}
           data-piece-id={id}
-          onMouseOver={mouseOverHandler}
-          onMouseLeave={mouseLeaveHandler}
+          onMouseOver={symbolMouseOverHandler}
+          onMouseLeave={symbolMouseLeaveHandler}
           onDragStart={dragStartHandler}
         />
       )),
-    [symbols]
+    [
+      cursor,
+      dragStartHandler,
+      symbolMouseLeaveHandler,
+      symbolMouseOverHandler,
+      symbols,
+    ]
   )
 
   return (

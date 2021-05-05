@@ -32,3 +32,25 @@
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
 }
+
+.tools {
+  margin: 12px 0 20px;
+
+  .tool {
+    padding: 10px;
+    border: 2px solid #ccc;
+    width: 14px;
+
+    &.active {
+      background-color: #ccc;
+    }
+
+    &:not(.active):hover {
+      background-color: #eee;
+    }
+
+    &:not(:first-child) {
+      border-left: none;
+    }
+  }
+}

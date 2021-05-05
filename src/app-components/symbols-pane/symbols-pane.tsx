@@ -1,6 +1,14 @@
 import React, { useCallback } from "react"
+import classNames from "classnames"
 
 import { FlowchartSymbol, SymbolDef } from "app-models"
+import {
+  actions,
+  CursorState,
+  selectCursorState,
+  useAppDispatch,
+  useAppSelector,
+} from "app-store"
 import "./symbols-pane.scss"
 
 export const symbolsDef: { [key in FlowchartSymbol]: SymbolDef } = {
@@ -33,6 +41,10 @@ export const symbolsDef: { [key in FlowchartSymbol]: SymbolDef } = {
 export interface SymbolsPaneProps {}
 
 export function SymbolsPane(props: SymbolsPaneProps) {
+  // retrieve cursor state from store
+  const cursor = useAppSelector<CursorState>(selectCursorState)
+  const dispatch = useAppDispatch()
+
   // event listeners
   const dragStartHandler = useCallback((event) => {
     const { left, top } = event.target.getBoundingClientRect()
@@ -50,6 +62,14 @@ export function SymbolsPane(props: SymbolsPaneProps) {
       })
     )
   }, [])
+  const handleCursorDefault = useCallback(
+    () => dispatch(actions.updateCursor("default")),
+    [dispatch]
+  )
+  const handleCursorConnect = useCallback(
+    () => dispatch(actions.updateCursor("connect")),
+    [dispatch]
+  )
 
   // subcomponents definition
   const uiSymbols = Object.entries(symbolsDef).map(
@@ -71,6 +91,21 @@ export function SymbolsPane(props: SymbolsPaneProps) {
 
   return (
     <div className="symbols">
+      <div className="title">Tools</div>
+      <div className="tools">
+        <img
+          className={classNames({ tool: true, active: cursor === "default" })}
+          src="assets/cursor-default.svg"
+          alt="Default"
+          onClick={handleCursorDefault}
+        />
+        <img
+          className={classNames({ tool: true, active: cursor === "connect" })}
+          src="assets/cursor-connect.svg"
+          alt="Connect"
+          onClick={handleCursorConnect}
+        />
+      </div>
       <div className="title">Flowchart Symbols</div>
       {uiSymbols}
     </div>
